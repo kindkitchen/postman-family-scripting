@@ -8,9 +8,9 @@
     "pr": "deno task merge-dev-into-main"
   },
   "devDependencies": {
-    "@types/chai": "^5.0.1",
-    "@types/postman-collection": "^3.5.10",
-    "pkgroll": "^2.11.2",
-    "typescript": "^5.8.2"
+    "@types/chai": "^5.2.3",
+    "@types/postman-collection": "^3.5.11",
+    "pkgroll": "^2.27.0",
+    "typescript": "^5.9.3"
   }
 }
