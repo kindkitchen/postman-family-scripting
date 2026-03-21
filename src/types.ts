@@ -53,6 +53,10 @@ declare global {
     req_fbody_to_env?: Mapping;
     req_fbody_to_globals?: Mapping;
     req_fbody_to_col?: Mapping;
+    /// === mapping raw json object as they are (key=value) ===
+    raw_json_to_env?: object;
+    raw_json_to_col?: object;
+    raw_json_to_globals?: object;
     /// === use extra-prefix for variables to avoid conflicts ===
     prefix?: string;
     /// === possible prevention of running request ===
