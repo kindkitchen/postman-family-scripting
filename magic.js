@@ -97,6 +97,9 @@ function after_response() {
       req_fbody_to_env,
       req_fbody_to_globals,
       req_fbody_to_col,
+      raw_json_to_env,
+      raw_json_to_col,
+      raw_json_to_globals,
       prefix
     } = magic;
     const actual_res_code = pm.response.code || pm.response.transport.http?.statusCode;
@@ -119,6 +122,10 @@ function after_response() {
       fData = pm.request.body.formdata.toObject();
     } catch {
     }
+    const raw_mapping = (obj, scope) => Object.entries(obj).forEach(([k, v]) => pm[scope].set(k, v));
+    raw_json_to_env && raw_mapping(raw_json_to_env, "environment");
+    raw_json_to_col && raw_mapping(raw_json_to_col, "collectionVariables");
+    raw_json_to_globals && raw_mapping(raw_json_to_globals, "globals");
     mapping(res_jbody_to_env, jData, "environment", prefix);
     mapping(res_jbody_to_col, jData, "collectionVariables", prefix);
     mapping(res_jbody_to_globals, jData, "globals", prefix);
