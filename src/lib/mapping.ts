@@ -1,4 +1,5 @@
 import { deep_merge } from "../helpers/deep_merge";
+import { get_ctx } from "./detect_global_ctx";
 
 export function mapping(
   mapping: Mapping | undefined,
@@ -42,7 +43,8 @@ export function mapping(
     }
 
     const key = prefix + k;
-    const prev = pm[destination].get<any>(key);
+    const ctx = get_ctx();
+    const prev = ctx[destination].get<any>(key);
 
     if (prev && options.strategy === "propose") {
       /// for <propose> strategy we do not touch existed value and ignore new
