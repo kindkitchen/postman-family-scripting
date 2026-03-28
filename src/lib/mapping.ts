@@ -16,7 +16,7 @@ export function mapping(
     }
     const options: Required<MayBeOptions> = {
       type: "string",
-      strategy: "replace",
+      strategy: "replace-if-value-truly",
       magic: null,
     };
     if (typeof last === "string") {
@@ -50,6 +50,8 @@ export function mapping(
       console.info(
         "The old value will be used. New will be ignored. Becase of <propose> strategy.",
       );
+    } else if (options.strategy === "replace-if-value-truly") {
+      value = value || prev;
     } else if (
       options.strategy === "replace" ||
       /// this is the exactly strategy that will be used for all another inline or-like conditions

@@ -17,7 +17,12 @@ declare global {
     string,
     MayBePath
   >;
-  type SetStrategy = "replace" | "propose" | "merge" | "deep-merge";
+  type SetStrategy =
+    | "replace-if-value-truly"
+    | "replace"
+    | "propose"
+    | "merge"
+    | "deep-merge";
   type MayBeOptions = {
     type?: VarConvertType;
     strategy?: SetStrategy;
