@@ -145,7 +145,7 @@ function mapping(mapping, source, destination, prefix = "") {
     }
     const options = {
       type: "string",
-      strategy: "replace",
+      strategy: "replace-if-value-truly",
       magic: null
     };
     if (typeof last === "string") {
@@ -172,6 +172,8 @@ function mapping(mapping, source, destination, prefix = "") {
       console.info(
         "The old value will be used. New will be ignored. Becase of <propose> strategy."
       );
+    } else if (options.strategy === "replace-if-value-truly") {
+      value = value || prev;
     } else if (options.strategy === "replace" || /// this is the exactly strategy that will be used for all another inline or-like conditions
     !prev || /// nothing to do with strategies
     options.type !== typeof prev && /// for types mismatch between prev and new values we use default <replace> strategy
