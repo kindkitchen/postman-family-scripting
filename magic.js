@@ -1,29 +1,9 @@
 'use strict';
 
-function deep_merge(...objects) {
-  const isObject = (obj) => obj && typeof obj === "object";
-  return objects.reduce((prev, obj) => {
-    Object.keys(obj).forEach((key) => {
-      const pVal = prev[key];
-      const oVal = obj[key];
-      if (Array.isArray(pVal) && Array.isArray(oVal)) {
-        prev[key] = pVal.concat(...oVal);
-      } else if (isObject(pVal) && isObject(oVal)) {
-        prev[key] = deep_merge(pVal, oVal);
-      } else {
-        prev[key] = oVal;
-      }
-    });
-    return prev;
-  }, {});
-}
-
 function get_ctx() {
   const detection = detect_global_ctx();
-  let ctx;
   if (detection.bruno) {
-    detection.api;
-    ctx = {
+    const ctx = {
       environment: {
         get: (name) => bru.getEnvVar(name),
         get name() {
@@ -78,6 +58,8 @@ function get_ctx() {
       },
       request: {
         get body() {
+          const body = req.getBody();
+          body.raw = body;
           return req.getBody();
         },
         get name() {
@@ -89,19 +71,22 @@ function get_ctx() {
           return res.getStatus();
         },
         get body() {
-          return res.getBody();
+          const body = res.getBody();
+          body.raw = body;
+          return body;
         }
       },
       test(...args) {
         test(...args);
       }
     };
+    return ctx;
   } else if (detection.postman) {
-    ctx = detection.api;
+    const ctxPm = detection.api;
+    return ctxPm;
   } else {
     throw "impossible";
   }
-  return ctx;
 }
 function detect_global_ctx() {
   const variants = {
@@ -135,7 +120,31 @@ function detect_global_ctx() {
   }
 }
 
+function deep_merge(...objects) {
+  const isObject = (obj) => obj && typeof obj === "object";
+  return objects.reduce((prev, obj) => {
+    Object.keys(obj).forEach((key) => {
+      const pVal = prev[key];
+      const oVal = obj[key];
+      if (Array.isArray(pVal) && Array.isArray(oVal)) {
+        prev[key] = pVal.concat(...oVal);
+      } else if (isObject(pVal) && isObject(oVal)) {
+        prev[key] = deep_merge(pVal, oVal);
+      } else {
+        prev[key] = oVal;
+      }
+    });
+    return prev;
+  }, {});
+}
+
 function mapping(mapping, source, destination, prefix = "") {
+  console.log({
+    mapping,
+    source,
+    destination,
+    prefix
+  });
   if (!mapping) return;
   Object.entries(mapping).forEach(([k, mayBePath]) => {
     const last = mayBePath.pop();
@@ -189,7 +198,7 @@ function mapping(mapping, source, destination, prefix = "") {
     console.info(
       `Set ${destination}.${prefix + k} = ${value} (as ${options.type} data-type)`
     );
-    pm[destination].set(
+    ctx[destination].set(
       key,
       value,
       options.type
@@ -197,13 +206,14 @@ function mapping(mapping, source, destination, prefix = "") {
   });
 }
 
+const ctx = get_ctx();
 function after_response() {
   const {
-    name = pm.request.name,
+    name = ctx.request.name,
     description
   } = magic;
   name && console.info(name);
-  pm.test(name, () => {
+  ctx.test(name, () => {
     const {
       res_codes = [200, 201, 202, 203, 204],
       res_jbody_to_env,
@@ -220,24 +230,26 @@ function after_response() {
       raw_json_to_globals,
       prefix
     } = magic;
-    const actual_res_code = pm.response.code || pm.response.transport.http?.statusCode;
+    const actual_res_code = ctx.response.code || ctx.response.transport.http?.statusCode;
     if (!actual_res_code) {
       console.warn("Unable to get res status code... Please open the issue");
     } else if (!res_codes.includes(actual_res_code)) {
       console.warn("Response code is not declared in <magic.res_codes>");
-      pm.expect(res_codes).includes(actual_res_code);
+      ctx.expect(res_codes).includes(actual_res_code);
       return;
     }
     let jData = {};
     try {
-      jData = pm.response.json();
+      jData = ctx.response.json();
     } catch (err) {
-      jData = pm.response;
+      jData = ctx.response;
     }
-    const rawReqBody = JSON.parse(pm.request.body?.raw || "{}");
+    const rawReqBody = JSON.parse(
+      ctx.request.body?.raw || "{}"
+    );
     let fData = {};
     try {
-      fData = pm.request.body.formdata.toObject();
+      fData = ctx.request.body.formdata.toObject();
     } catch {
     }
     const raw_mapping = (obj, scope) => Object.entries(obj).forEach(([k, v]) => pm[scope].set(k, v));

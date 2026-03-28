@@ -7,6 +7,12 @@ export function mapping(
   destination: VarScopeName,
   prefix = "",
 ) {
+  console.log({
+    mapping,
+    source,
+    destination,
+    prefix,
+  });
   if (!mapping) return;
   Object.entries(mapping).forEach(([k, mayBePath]) => {
     const last = mayBePath.pop(); /// possibly object with data-type clarification
@@ -87,7 +93,7 @@ export function mapping(
       } = ${value} (as ${options.type} data-type)`,
     );
 
-    pm[destination].set(
+    ctx[destination].set(
       key,
       value,
       options.type,

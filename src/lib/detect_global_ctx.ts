@@ -1,10 +1,8 @@
 export function get_ctx() {
   const detection = detect_global_ctx();
-  let ctx: typeof pm;
 
   if (detection.bruno) {
-    const api = detection.api as typeof bru;
-    ctx = {
+    const ctx: typeof pm = {
       environment: {
         get: (name) => bru.getEnvVar(name),
         get name() {
@@ -62,6 +60,9 @@ export function get_ctx() {
       },
       request: {
         get body() {
+          const body = req.getBody();
+
+          body.raw = body;
           return req.getBody();
         },
         get name() {
@@ -73,23 +74,28 @@ export function get_ctx() {
           return res.getStatus();
         },
         get body() {
-          return res.getBody();
+          const body = res.getBody();
+
+          body.raw = body;
+
+          return body;
         },
       } as any,
       test(...args: any[]) {
         test(...args);
       },
     };
+    return ctx;
   } else if (detection.postman) {
-    ctx = detection.api as typeof pm;
+    const ctxPm = detection.api as typeof pm;
+
+    return ctxPm;
   } else {
     throw "impossible";
   }
-
-  return ctx;
 }
 
-function detect_global_ctx() {
+export function detect_global_ctx() {
   const variants = {
     pm: typeof pm,
     bru: typeof bru,

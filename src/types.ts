@@ -219,7 +219,7 @@ declare global {
   };
   const req: BrunoReq;
   const res: BrunoRes;
-  const test: typeof pm.test;
+  const test: typeof pm["test"];
 }
 
 export {};

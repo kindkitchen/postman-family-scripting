@@ -1,16 +1,19 @@
+import { detect_global_ctx, get_ctx } from "./lib/detect_global_ctx";
 import { mapping } from "./lib/mapping";
 import * as _types from "./types";
 _types;
 
+const ctx = get_ctx();
+
 export function after_response() {
   const {
-    name = pm.request.name,
+    name = ctx.request.name,
     description,
   } = magic;
 
   name && console.info(name);
 
-  pm.test(name, () => {
+  ctx.test(name, () => {
     const {
       res_codes = [200, 201, 202, 203, 204],
       res_jbody_to_env,
@@ -27,27 +30,30 @@ export function after_response() {
       raw_json_to_globals,
       prefix,
     } = magic;
-    const actual_res_code = pm.response.code ||
-      pm.response.transport.http?.statusCode;
+    const actual_res_code = ctx.response.code ||
+      ctx.response.transport.http?.statusCode;
     if (!actual_res_code) {
       console.warn("Unable to get res status code... Please open the issue");
     } else if (!res_codes.includes(actual_res_code)) {
       console.warn("Response code is not declared in <magic.res_codes>");
-      pm.expect(res_codes).includes(actual_res_code);
+      ctx.expect(res_codes).includes(actual_res_code);
       return;
     }
 
     let jData = {};
 
     try {
-      jData = pm.response.json();
+      jData = ctx.response.json();
     } catch (err) {
-      jData = pm.response;
+      jData = ctx.response;
     }
-    const rawReqBody = JSON.parse(pm.request.body?.raw || "{}");
+
+    const rawReqBody = JSON.parse(
+      ctx.request.body?.raw || "{}",
+    );
     let fData = {};
     try {
-      fData = pm.request.body.formdata.toObject();
+      fData = ctx.request.body.formdata.toObject();
     } catch {}
 
     const raw_mapping = (obj: object, scope: VarScopeName) =>
