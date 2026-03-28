@@ -1,5 +1,5 @@
 {
-  "deno.enable": false,
+  "deno.enablePaths": ["./cli"],
   "cSpell.words": [
     "fbody",
     "gitam",

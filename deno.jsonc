@@ -33,6 +33,10 @@
         "format"
       ]
     },
+    "magic_script_to_json_string": {
+      "description": "JSON.stringify for produced script to be able use it as value for eval function etc.",
+      "command": "deno run -RW cli/magic_to_json_string.ts"
+    },
     "gitam": {
       "description": "Quick git commit",
       "command": "git add -A && git commit",
@@ -40,11 +44,11 @@
         "format"
       ]
     },
+    "do:all": "deno task start && deno task magic_script_to_json_string",
     "pr": {
-      "description": "Shortcut to create PR and merge dev branch into main",
+      "description": "Shortcut to create PR and merge dev branch into main (DO NOT FORGET TO RUN <do:all> task for sure)",
       "command": "git push origin dev && gh pr create --fill-verbose && gh pr merge --auto --merge",
       "dependencies": [
-        "start",
         "gitam"
       ]
     }
